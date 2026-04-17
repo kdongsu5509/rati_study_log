@@ -18,3 +18,4 @@
 [[2. Object Registration - Deeping]]
 [[3. Scopes - 기초]]
 [[4. Scopes - 심화]]
+[[5. 비동기 객체 - 기초]]
