@@ -23,9 +23,7 @@ public class OrderService {
 4. **일반 설정 메서드 (Config Method)**
 
 #### 1. 생성자 주입 (Constructor Injection)
-
-### 기본 예제
-
+**기본 예제**
 ```java
 @Component
 public class OrderService {
@@ -46,43 +44,13 @@ public class OrderService {
     }
 }
 ```
+- 스프링 4.3 이후로는 생성자가 하나일 때 `Autowired` 생략 가능.
 
-### 생성자가 하나면 @Autowired 생략 가능
-
-```java
-@Component
-public class UserService {
-    
-    private final UserRepository userRepository;
-    
-    // @Autowired 생략! Spring이 자동으로 인식
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-}
-```
-
-### Lombok과 함께 사용
-
-```java
-@Service
-@RequiredArgsConstructor  // final 필드에 대한 생성자 자동 생성
-public class ProductService {
-    
-    private final ProductRepository productRepository;
-    private final CategoryService categoryService;
-    
-    // Lombok이 생성자를 만들어주고, Spring이 자동 주입
-    
-    public Product findById(Long id) {
-        return productRepository.findById(id)
-            .orElseThrow(() -> new ProductNotFoundException(id));
-    }
-}
-```
-
-### 생성자 주입의 장점
-
+**생성자 주입의 장점**
+- 장점 1: final 키워드 → 불변성 보장
+- 장점 2: 테스트 시 Mock 객체 쉽게 주입
+- 장점 3: 순환 참조를 컴파일 타임에 감지 가능
+- 장점 4: 모든 의존성이 생성자에 명시 → 가독성 향상
 ```java
 @Service
 public class ShoppingCartService {
@@ -98,16 +66,11 @@ public class ShoppingCartService {
         this.productService = productService;
         this.priceCalculator = priceCalculator;
     }
-    
-    // 장점 1: final 키워드 → 불변성 보장
-    // 장점 2: 테스트 시 Mock 객체 쉽게 주입
-    // 장점 3: 순환 참조를 컴파일 타임에 감지 가능
-    // 장점 4: 모든 의존성이 생성자에 명시 → 가독성 향상
 }
 ```
 
-### 테스트 시의 이점
-
+**테스트 시의 이점**
+-> 굳이 `Mock` 를 안써도(즉, 테스트용 객체를 별도로 주입할 때에도) 편리함.
 ```java
 class ShoppingCartServiceTest {
     
@@ -129,12 +92,9 @@ class ShoppingCartServiceTest {
 }
 ```
 
----
+#### 2. 필드 주입 (Field Injection)
 
-## 2. 필드 주입 (Field Injection)
-
-### 기본 예제
-
+**기본 예제**
 ```java
 @RestController
 @RequestMapping("/api/orders")
@@ -155,28 +115,13 @@ public class OrderController {
 }
 ```
 
-### 단점과 주의사항
+**단점과 주의사항**
+1. `final` 키워드 사용 불가 -> 가변 상태
+2. 테스트 시 `reflection` 사용하여야 함.
+3. 순환 참조를 컴파일 단계에서 찾을 수 없음 -> 런타임에서 발견 가능
+4. 의존성이 숨겨져 있음 -> 가독성 저하
 
-```java
-@Service
-public class EmailService {
-    
-    @Autowired
-    private EmailSender emailSender;
-    
-    // 단점 1: final 키워드 사용 불가 → 가변 상태
-    // 단점 2: 테스트 시 리플렉션 필요
-    // 단점 3: 순환 참조를 런타임에서야 발견
-    // 단점 4: 의존성이 숨겨져 있어 가독성 저하
-    
-    public void sendEmail(String to, String subject, String body) {
-        emailSender.send(to, subject, body);
-    }
-}
-```
-
-### 언제 사용하나?
-
+**언제 사용하나?**
 ```java
 @Configuration
 public class AppConfig {
@@ -196,12 +141,9 @@ public class AppConfig {
 }
 ```
 
----
+#### 3. 세터 주입 (Setter Injection)
 
-## 3. 세터 주입 (Setter Injection)
-
-### 기본 예제
-
+**기본 예제**
 ```java
 @Component
 public class ReportGenerator {
@@ -226,8 +168,8 @@ public class ReportGenerator {
 }
 ```
 
-### 선택적 의존성에 사용
-
+##### 적절한 사용 예시
+**선택적 의존성에 사용**
 ```java
 @Service
 public class ProductService {
@@ -257,8 +199,7 @@ public class ProductService {
 }
 ```
 
-### 재설정 가능한 의존성
-
+**재설정 가능한 의존성**
 ```java
 @Component
 public class DynamicRoutingService {
@@ -281,12 +222,10 @@ public class DynamicRoutingService {
 }
 ```
 
----
+#### 4. 일반 메서드 주입 (Method Injection)
+##### 적합한 사용 시기
 
-## 4. 일반 메서드 주입 (Method Injection)
-
-### 복잡한 초기화가 필요한 경우
-
+**복잡한 초기화가 필요한 경우**
 ```java
 @Component
 public class DataProcessor {
@@ -316,8 +255,7 @@ public class DataProcessor {
 }
 ```
 
-### 여러 메서드에 주입
-
+**여러 메서드에 주입**
 ```java
 @Service
 public class OrderProcessor {
@@ -343,26 +281,20 @@ public class OrderProcessor {
 }
 ```
 
----
 
-## required 속성
 
-### 기본 동작 (required = true)
+## `@Autowired` 의 속성
 
-```java
-@Service
-public class NotificationService {
-    
-    @Autowired  // required = true가 기본값
-    private EmailSender emailSender;
-    
-    // emailSender 빈이 없으면 애플리케이션 구동 실패
-    // 예외: NoSuchBeanDefinitionException
-}
-```
+### 1. required 속성
+- 기본값 : `true`
+	- 반드시 기본값이 `true` 인 `@Autowired` 는 최대 한 개만 존재하여야 함.
+	- 아래 예제에서 `emailSender` 가 없으면 실행 불가 -> `NoSuchBeanDefinitionException` 발생
 
-### 선택적 의존성 (required = false)
-
+**required 옵션 `false` 사용 예제**
+- 필요한 `Bean` 이 없어도 구동 가능.
+- 의존성 관련 작업 전 `Null` 를 명시적으로 확인하여야 함.
+	- `Optional` 타입으로 의존성을 주입하면 확인을 강제함.
+	- `Spring` 5 이상에서부터는 `@Nullable` 를 사용할 수도 있음.
 ```java
 @Service
 public class UserService {
@@ -380,8 +312,7 @@ public class UserService {
 }
 ```
 
-### Optional 타입 사용 (더 명시적)
-
+**Optional 타입 사용**
 ```java
 @Service
 public class ReportService {
@@ -401,8 +332,7 @@ public class ReportService {
 }
 ```
 
-### @Nullable 사용 (Spring 5.0+)
-
+**@Nullable 사용 (Spring 5.0+)**
 ```java
 @Service
 public class AnalyticsService {
@@ -422,8 +352,7 @@ public class AnalyticsService {
 }
 ```
 
-### 생성자가 여러 개일 때
-
+**생성자가 여러 개일 때**
 ```java
 @Component
 public class ComplexService {
@@ -458,12 +387,9 @@ public class ComplexService {
 }
 ```
 
----
+### 2. 컬렉션 주입
 
-## 컬렉션 주입
-
-### List 주입
-
+**List 주입**
 ```java
 @Service
 public class PaymentProcessor {
@@ -509,8 +435,7 @@ public class BankTransferHandler implements PaymentHandler {
 }
 ```
 
-### Map 주입
-
+**Map 주입**
 ```java
 @Service
 public class NotificationService {
@@ -550,8 +475,7 @@ public class SmsChannel implements NotificationChannel {
 }
 ```
 
-### 배열 주입
-
+**배열 주입**
 ```java
 @Configuration
 public class FilterConfig {
@@ -570,8 +494,7 @@ public class FilterConfig {
 }
 ```
 
-### 순서 지정 (@Order)
-
+### 3. 순서 지정 (@Order)
 ```java
 @Component
 @Order(1)
@@ -606,11 +529,9 @@ public class FilterService {
 ```
 
 ---
-
 ## @Qualifier와 함께 사용
 
-### 같은 타입의 빈이 여러 개일 때
-
+##### Case1. 같은 타입의 빈이 여러 개일 때
 ```java
 // 두 개의 DataSource 빈이 있는 경우
 @Configuration
@@ -650,8 +571,7 @@ public class UserService {
 }
 ```
 
-### 생성자에서 @Qualifier 사용
-
+#####  Case2. 생성자에서 @Qualifier 사용
 ```java
 @Service
 public class ReportService {
@@ -665,8 +585,7 @@ public class ReportService {
 }
 ```
 
-### 커스텀 Qualifier 어노테이션
-
+##### Case3. 커스텀 Qualifier 어노테이션
 ```java
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
@@ -712,8 +631,7 @@ public class DataService {
 
 ## 주의사항
 
-### ⚠️ BeanPostProcessor / BeanFactoryPostProcessor에는 사용 불가
-
+#### 1. BeanPostProcessor / BeanFactoryPostProcessor에는 사용 불가
 ```java
 // ❌ 이렇게 하면 안 됨
 @Component
@@ -828,394 +746,3 @@ class OrderServiceTest {
     }
 }
 ```
-
----
-
-## 실전 예제
-
-### 1. REST API 컨트롤러
-
-```java
-@RestController
-@RequestMapping("/api/v1/products")
-public class ProductController {
-    
-    private final ProductService productService;
-    private final CategoryService categoryService;
-    
-    @Autowired
-    public ProductController(ProductService productService,
-                           CategoryService categoryService) {
-        this.productService = productService;
-        this.categoryService = categoryService;
-    }
-    
-    @GetMapping
-    public ResponseEntity<Page<Product>> getProducts(
-            @RequestParam(required = false) Long categoryId,
-            Pageable pageable) {
-        
-        if (categoryId != null) {
-            return ResponseEntity.ok(
-                productService.findByCategory(categoryId, pageable)
-            );
-        }
-        return ResponseEntity.ok(productService.findAll(pageable));
-    }
-    
-    @PostMapping
-    public ResponseEntity<Product> createProduct(
-            @RequestBody @Valid ProductRequest request) {
-        
-        Product product = productService.create(request);
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(product);
-    }
-}
-```
-
-### 2. 멀티 데이터소스 설정
-
-```java
-@Configuration
-public class MultiDataSourceConfig {
-    
-    @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource.primary")
-    public DataSourceProperties primaryDataSourceProperties() {
-        return new DataSourceProperties();
-    }
-    
-    @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource.primary.hikari")
-    public DataSource primaryDataSource() {
-        return primaryDataSourceProperties()
-            .initializeDataSourceBuilder()
-            .type(HikariDataSource.class)
-            .build();
-    }
-    
-    @Bean
-    @ConfigurationProperties("spring.datasource.secondary")
-    public DataSourceProperties secondaryDataSourceProperties() {
-        return new DataSourceProperties();
-    }
-    
-    @Bean
-    @ConfigurationProperties("spring.datasource.secondary.hikari")
-    public DataSource secondaryDataSource() {
-        return secondaryDataSourceProperties()
-            .initializeDataSourceBuilder()
-            .type(HikariDataSource.class)
-            .build();
-    }
-}
-
-@Service
-public class DataMigrationService {
-    
-    private final JdbcTemplate primaryTemplate;
-    private final JdbcTemplate secondaryTemplate;
-    
-    @Autowired
-    public DataMigrationService(
-            @Qualifier("primaryDataSource") DataSource primaryDs,
-            @Qualifier("secondaryDataSource") DataSource secondaryDs) {
-        this.primaryTemplate = new JdbcTemplate(primaryDs);
-        this.secondaryTemplate = new JdbcTemplate(secondaryDs);
-    }
-    
-    public void migrateData() {
-        List<Map<String, Object>> data = 
-            primaryTemplate.queryForList("SELECT * FROM users");
-        
-        for (Map<String, Object> row : data) {
-            secondaryTemplate.update(
-                "INSERT INTO users_backup VALUES (?, ?, ?)",
-                row.get("id"), row.get("name"), row.get("email")
-            );
-        }
-    }
-}
-```
-
-### 3. 이벤트 기반 아키텍처
-
-```java
-// 이벤트
-public class OrderCreatedEvent {
-    private final Long orderId;
-    private final BigDecimal amount;
-    private final String customerEmail;
-    
-    // constructor, getters
-}
-
-// 이벤트 리스너들
-@Component
-public class EmailNotificationListener {
-    
-    private final EmailService emailService;
-    
-    @Autowired
-    public EmailNotificationListener(EmailService emailService) {
-        this.emailService = emailService;
-    }
-    
-    @EventListener
-    public void handleOrderCreated(OrderCreatedEvent event) {
-        emailService.sendOrderConfirmation(
-            event.getCustomerEmail(),
-            event.getOrderId()
-        );
-    }
-}
-
-@Component
-public class InventoryUpdateListener {
-    
-    private final InventoryService inventoryService;
-    
-    @Autowired
-    public InventoryUpdateListener(InventoryService inventoryService) {
-        this.inventoryService = inventoryService;
-    }
-    
-    @EventListener
-    @Async
-    public void handleOrderCreated(OrderCreatedEvent event) {
-        inventoryService.decreaseStock(event.getOrderId());
-    }
-}
-
-// 이벤트 발행자
-@Service
-public class OrderService {
-    
-    private final OrderRepository orderRepository;
-    private final ApplicationEventPublisher eventPublisher;
-    
-    @Autowired
-    public OrderService(OrderRepository orderRepository,
-                       ApplicationEventPublisher eventPublisher) {
-        this.orderRepository = orderRepository;
-        this.eventPublisher = eventPublisher;
-    }
-    
-    @Transactional
-    public Order createOrder(OrderRequest request) {
-        Order order = orderRepository.save(
-            Order.fromRequest(request)
-        );
-        
-        // 이벤트 발행
-        eventPublisher.publishEvent(
-            new OrderCreatedEvent(
-                order.getId(),
-                order.getAmount(),
-                order.getCustomerEmail()
-            )
-        );
-        
-        return order;
-    }
-}
-```
-
-### 4. 전략 패턴 구현
-
-```java
-// 전략 인터페이스
-public interface PricingStrategy {
-    BigDecimal calculatePrice(Product product, int quantity);
-    boolean supports(CustomerType customerType);
-}
-
-// 전략 구현체들
-@Component
-@Order(1)
-public class RetailPricingStrategy implements PricingStrategy {
-    
-    @Override
-    public BigDecimal calculatePrice(Product product, int quantity) {
-        return product.getPrice().multiply(BigDecimal.valueOf(quantity));
-    }
-    
-    @Override
-    public boolean supports(CustomerType customerType) {
-        return customerType == CustomerType.RETAIL;
-    }
-}
-
-@Component
-@Order(2)
-public class WholesalePricingStrategy implements PricingStrategy {
-    
-    @Override
-    public BigDecimal calculatePrice(Product product, int quantity) {
-        BigDecimal basePrice = product.getPrice()
-            .multiply(BigDecimal.valueOf(quantity));
-        
-        if (quantity >= 100) {
-            return basePrice.multiply(BigDecimal.valueOf(0.8)); // 20% 할인
-        } else if (quantity >= 50) {
-            return basePrice.multiply(BigDecimal.valueOf(0.9)); // 10% 할인
-        }
-        return basePrice;
-    }
-    
-    @Override
-    public boolean supports(CustomerType customerType) {
-        return customerType == CustomerType.WHOLESALE;
-    }
-}
-
-// 전략 사용
-@Service
-public class PricingService {
-    
-    private final List<PricingStrategy> strategies;
-    
-    @Autowired
-    public PricingService(List<PricingStrategy> strategies) {
-        this.strategies = strategies;
-    }
-    
-    public BigDecimal calculatePrice(Product product, 
-                                    int quantity, 
-                                    CustomerType customerType) {
-        return strategies.stream()
-            .filter(strategy -> strategy.supports(customerType))
-            .findFirst()
-            .map(strategy -> strategy.calculatePrice(product, quantity))
-            .orElseThrow(() -> 
-                new IllegalArgumentException("No pricing strategy found")
-            );
-    }
-}
-```
-
----
-
-## @Autowired vs @Inject vs @Resource
-
-```java
-// 1. @Autowired (Spring)
-@Service
-public class ServiceA {
-    @Autowired
-    @Qualifier("serviceB")
-    private ServiceB serviceB;
-}
-
-// 2. @Inject (JSR-330 표준)
-@Service
-public class ServiceA {
-    @Inject
-    @Named("serviceB")
-    private ServiceB serviceB;
-    // required 옵션 없음
-}
-
-// 3. @Resource (JSR-250 표준)
-@Service
-public class ServiceA {
-    @Resource(name = "serviceB")
-    private ServiceB serviceB;
-    // 이름으로 먼저 찾고, 없으면 타입으로 찾음
-}
-```
-
-|어노테이션|출처|매칭 방식|required 옵션|
-|---|---|---|---|
-|`@Autowired`|Spring|타입 우선|✅ 있음|
-|`@Inject`|JSR-330|타입 우선|❌ 없음|
-|`@Resource`|JSR-250|이름 우선|✅ 있음|
-
----
-
-## 베스트 프랙티스
-
-### ✅ DO
-
-1. **생성자 주입을 기본으로 사용**
-
-```java
-@Service
-public class UserService {
-    private final UserRepository userRepository;
-    
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-}
-```
-
-2. **의존성은 final로 선언**
-
-```java
-private final DependencyService dependency;  // ✅
-```
-
-3. **테스트 가능하도록 설계**
-
-```java
-// 생성자 주입으로 Mock 주입 용이
-public UserService(UserRepository repository) {
-    this.repository = repository;
-}
-```
-
-4. **선택적 의존성은 Optional 사용**
-
-```java
-@Autowired
-private Optional<CacheService> cacheService;
-```
-
-### ❌ DON'T
-
-1. **필드 주입 남발 금지**
-
-```java
-@Autowired
-private Service1 service1;  // ❌
-@Autowired
-private Service2 service2;  // ❌
-```
-
-2. **순환 참조 만들지 않기**
-
-```java
-// ServiceA → ServiceB → ServiceA ❌
-```
-
-3. **너무 많은 의존성 주입**
-
-```java
-// 생성자 파라미터가 5개 이상이면 클래스 분리 고려
-public ComplexService(A a, B b, C c, D d, E e, F f) { }  // ❌
-```
-
----
-
-## 정리
-
-### 핵심 요약
-
-1. `@Autowired`는 Spring 컨테이너가 타입 기준으로 빈을 찾아 자동 주입
-2. 생성자 주입을 권장 (불변성, 테스트 용이성)
-3. 생성자가 하나면 `@Autowired` 생략 가능 (Spring 4.3+)
-4. 같은 타입의 빈이 여러 개면 `@Qualifier` 또는 `List` 주입
-5. `required = false` 또는 `Optional`로 선택적 의존성 처리
-6. 순환 참조 주의
-
-### 언제 사용하나?
-
-- **생성자 주입**: 대부분의 경우 (권장)
-- **세터 주입**: 선택적 의존성, 재설정 가능한 의존성
-- **필드 주입**: 테스트용 설정 클래스, 간단한 유틸리티
-- **메서드 주입**: 복잡한 초기화 로직이 필요한 경우
