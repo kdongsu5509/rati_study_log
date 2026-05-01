@@ -3,7 +3,7 @@
 ## 역할
 - `JDBC` 의 테스트에 관련된 컴포넌트의 `auto-configuration` 을 담당.
 	- 그 외 다른 `Configuration`  및 `Component` 에 대해서는 다루지 않음.
-		- 스캔하지 않음 : `@Component`, `@Service`, `@Repository
+		- 스캔하지 않음 : `@Component`, `@Service`
 		- 스캔함 : `@Repository`
 			- 추가로 `DataSource`, `JdbcTemplate`, `NamedParameterJdbcTemplate`
 #### 기본 설정
