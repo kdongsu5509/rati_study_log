@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm --version)",
+      "Bash(cygpath -w /tmp/quartz-template)",
+      "Bash(cp *)",
+      "Bash(npm ci *)",
+      "Bash(npx quartz *)"
+    ]
+  }
+}

@@ -8,3 +8,9 @@
 .DS_Store
 
 /copilot
+
+# Quartz build artifacts
+node_modules/
+public/
+.quartz-cache/
+tsconfig.tsbuildinfo
