@@ -1,38 +1,22 @@
-안녕하세요 검프, 저는 현재 로그에 대해서 마스터를 하고 싶어요                                                                                                                                                
-                                                                                                                                                                                                               
-  Searched for 1 pattern, listed 1 directory (ctrl+o to expand)                                                                                                                                                
-                                                                                                                                                                                                               
-● 흥미롭군요. "마스터"라는 단어를 그렇게 가볍게 입에 담는 사람치고 진짜로 마스터한 사람을 본 적이 없습니다.                                                                                                    
-                                                  
-  본론으로 들어가기 전에, 한 가지부터 확인하죠.                                                                                                                                                                
-                                                                                                                                                                                                               
-  로그(Log)가 도대체 왜 필요한가요?                                                                                                                                                                            
-                                                                                                                                                                                                               
-  이 질문에 "디버깅하려고요" 라든가, "에러 보려고요" 같은 초등학생 수준의 답변이 나온다면 대화는 거기서 끝입니다. 운영 서버에서 새벽 3시에 알림이 울렸을 때, 본인이 무엇을 보고 원인을 추적할지 상상도 안 해본 
-  사람과 로그를 논할 가치는 없죠.
 
-  자, 일단 본인의 현재 수준을 검증해봅시다. 가장 원시적인 형태의 "로그"를 한번 보죠. 이건 누구나 짜는, 그러나 누구도 운영에서 쓰면 안 되는 코드입니다.
+> `server` 에서 오류가 발생했다.
+> 무엇을 보고 원인을 추적할 것인가?
 
-  [기원] Level 0 — 원시 출력
 
-  public class OrderService {
+# 1. 로그 발전 시키기
 
-      public void placeOrder(String userId, Long productId, int quantity) {
-          System.out.println("주문 시작: userId=" + userId + ", productId=" + productId);
+**v0 : 아주 손쉽게 로그 남기는 방법**
+- `System.out.prinln` 를 사용하기
+```java
+public class RunningService {
+	public void order(String userId, Long productId, int quantity) {
+		System.out.println("주문 시작: userId=" + userId + ", productId=" + productId);
+	}
+}
+```
 
-          try {
-              // ... 결제, 재고 차감 등 비즈니스 로직 ...
-              System.out.println("주문 완료");
-          } catch (Exception e) {
-              System.out.println("에러 발생: " + e.getMessage());
-              e.printStackTrace();
-          }
-      }
-  }
 
-  자, 직접 따라 치면서 그 고통을 체감해보세요. 눈으로만 보는 건 공부가 아니라 구경입니다.
 
-  다 쳤습니까? 그럼 답하세요.
 
   1. 이 코드를 운영 서버에 올렸을 때, 본인이 운영자라면 밤에 잠이 올까요? 무엇이 가장 불편하죠?
   2. 만약 사장이 "어제 오후 3시부터 4시 사이에 발생한 ERROR 레벨 로그만 뽑아와" 라고 한다면, 본인은 무엇을 할 수 있나요?
@@ -161,3 +145,88 @@ https://www.slf4j.org/manual.html
 
 https://logback.qos.ch/manual/architecture.html
 
+
+
+---
+---
+
+✦ "각각의 저장공간을 제공한다", "정보가 전달된다"... 아주 틀린 말은 아닙니다만, 그건 누구나 검색 한 번이면 찾아낼 수 있는 '박제된 지식' 아닌가요?
+
+  진짜 문제는 왜(Why) 그런 일이 벌어지는가입니다.
+
+  Thread Pool 환경에서 스레드는 작업이 끝나면 죽나요? 아니죠. 재사용됩니다. 만약 본인이 A 사용자의 요청을 처리하면서 ThreadLocal에 유저 정보를 넣어두고, 명시적으로 비우지(remove) 않는다면, 그 스레드를 다음에
+  할당받은 B 사용자는 A 사용자의 흔적을 그대로 보게 됩니다. 이게 바로 본인이 말한 '정보 전달'의 실체이자, 운영 환경에서 보안 사고로 이어지는 치명적인 결함이죠.
+
+  자, 이제 말장난은 그만하고 코드로 증명해 보시죠. 
+
+  과제: PrimitiveMDC 구현 및 Logger 연동
+
+   1. PrimitiveMDC 클래스: ThreadLocal<Map<String, String>>을 사용하여 컨텍스트 정보를 저장하고 조회하는 기능을 만드세요. 
+   2. PrimitiveLogger 연동: 로그를 남길 때 현재 스레드의 MDC 정보를 읽어와서 출력 메시지에 포함시키도록 수정하세요.
+
+  제가 뼈대를 잡아드릴 테니, 본인이 직접 타이핑하면서 remove()의 중요성을 뼈저리게 느껴보시기 바랍니다.
+
+  1. PrimitiveMDC.java
+
+    1 package com.exmaple.logger;
+    2
+    3 import java.util.HashMap;
+    4 import java.util.Map;
+    5
+    6 public class PrimitiveMDC {
+    7     // [필연성] 각 스레드별로 독립적인 맵을 유지하기 위해 ThreadLocal 사용
+    8     private static final ThreadLocal<Map<String, String>> contextMap = ThreadLocal.withInitial(HashMap::new);
+    9
+   10     public static void put(String key, String val) {
+   11         contextMap.get().put(key, val);
+   12     }
+   13
+   14     public static String get(String key) {
+   15         return contextMap.get().get(key);
+   16     }
+   17
+   18     public static void clear() {
+   19         // [경고] 이 메서드를 호출하지 않으면 Thread Pool 환경에서 메모리 누수와 데이터 오염이 발생함
+   20         contextMap.remove();
+   21     }
+   22
+   23     public static Map<String, String> getCopyOfContextMap() {
+   24         return new HashMap<>(contextMap.get());
+   25     }
+   26 }
+
+  2. PrimitiveLogger.java 수정 (일부)
+  로그 포맷에 MDC 정보를 끼워 넣어야겠죠?
+
+    1 private void formatAndPropagate(LogLevel level, String message) {
+    2     String now = LocalDateTime.now().toString();
+    3     String thread = Thread.currentThread().getName();
+    4     
+    5     // 현재 스레드의 MDC 정보 가져오기
+    6     Map<String, String> mdc = PrimitiveMDC.getCopyOfContextMap();
+    7     
+    8     // 포맷: [시간] [스레드] [MDC정보] [레벨] [클래스] 메시지
+    9     String formatted = String.format("[%s] [%s] %s [%s] [%s] %s", 
+   10             now, thread, mdc, level, className, message);
+   11
+   12     propagate(level, formatted);
+   13 }
+
+  "자, 직접 따라 치면서 그 고통을 체감해보세요. 눈으로만 보는 건 공부가 아니라 구경입니다."
+
+  자, 이제 이 코드를 적용했다고 치고, 실무적인 질문을 던지겠습니다.
+
+   - 만약 비즈니스 로직 중간에 @Async나 CompletableFuture를 사용하여 새로운 스레드를 생성한다면, 부모 스레드에 설정된 MDC 정보는 어떻게 될까요? 자식 스레드에서도 그 정보를 그대로 볼 수 있나요? 
+   - 만약 볼 수 없다면, 이 '맥락(Context)'을 어떻게 자식 스레드까지 전달(Propagation)할 건가요? 
+
+  이게 바로 MDC의 두 번째 지옥, Context Propagation입니다. 대답해 보세요. 대책이 있습니까?
+
+
+                                                                                                                                                                                               ? for shortcuts
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Shift+Tab to accept edits                                                                                                                                                                    1 GEMINI.md file
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+ >   Type your message or @path/to/file                                                                                                                                                                        
+▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
+ workspace (/directory)                                     branch                                    sandbox                                       /model                                               quota
+ C:\DSKO_STUDY_REPO\temp                                    main                                      no sandbox                                    Auto (Gemini 3)                                    4% used
