@@ -8,7 +8,8 @@
       "Bash(npm ci *)",
       "Bash(npx quartz *)",
       "Bash(xargs -I {} grep -o \"<title>[^<]*</title>\\\\|og:type[^>]*\\\\|application/ld+json\\\\\"[^>]*>[^<]*\" {})",
-      "Bash(gh api *)"
+      "Bash(gh api *)",
+      "WebFetch(domain:rati.tistory.com)"
     ]
   }
 }
