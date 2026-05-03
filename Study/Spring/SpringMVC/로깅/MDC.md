@@ -271,3 +271,4 @@ public CompletableFuture<Result> doAsync() {
 	- 로그가 평문 텍스트로만 있으면 traceId 단위 집계·필터링이 어렵습니다.
 
 이 시점부터는 **로그를 한 곳에 모으고, 정형화하고, 색인하는 도구**가 필요합니다. 
+[[LOKI-RAW]]
