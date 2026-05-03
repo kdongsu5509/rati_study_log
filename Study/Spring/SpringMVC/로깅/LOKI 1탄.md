@@ -16,7 +16,7 @@ tags:
 
 이 때, `Body` 와 `Query Param` 을 이용하면 비즈니스 데이터에 메타 정보가 섞여서 지저분해진다. 그래서 메타 정보를 위한 공간인 `Header` 를 적극 활용한다.
 
-`micrometer-tracing` 을 `Spring Boot 4.x` 와 함께 사용하면 아래와 같은 `W3C Trace Context 표준` 을 자동으로 `Header` 에 포함해준다. (이게 업계 표준이다!)
+`micrometer-tracing` 을 `Spring Boot 4.x` 와 함께 사용하면 아래와 같은 `W3C Trace Context 표준` 을 자동으로 `Header` 에 포함해준다
 
   **W3C Trace Context 표준:**
   ```
@@ -33,8 +33,7 @@ tags:
 - **rsync 복사** : 실시간이 아니다. 새벽에 장애 터졌는데 로그는 1분 뒤에나 도착하면 피눈물 난다.
 - **UDP syslog** : 패킷이 유실된다. "결제 실패인지 로그가 사라진 건지" 구분 안 되면 장애 분석은 포기해야 한다.
 
-결국 좋은 로깅 시스템은 이래야 한다.
-- **비동기 전송** : 내 앱 성능 갉아먹으면 안 된다.
+- **비동기 전송** : 성능에 영향을 끼치면 안된다.
 - **실시간성** : 로그 찍히면 바로 볼 수 있어야 한다.
 - **신뢰성** : 네트워크 좀 끊겨도 버퍼링했다가 재시도해야 한다.
 - **구조화** : JSON처럼 기계가 읽기 좋아야 한다.
@@ -44,18 +43,18 @@ tags:
   Logstash (2010~)     → 무겁다 (JVM 기반)
   Fluentd (2011~)      → 중간 (Ruby 기반)
   Filebeat (2015~)     → 가볍다 (Go 기반)
-  Promtail (2018~)     → Loki 전용, 근데 2025년에 deprecated 된다고 함.
-  Alloy (2024~)        → Promtail 후속작! OTel + Loki 통합 수집기 (이거 써야 함)
+  Promtail (2018~)     → Loki 전용, 근데 2025년에 deprecated
+  Alloy (2024~)        → Promtail 후속작! OTel + Loki 통합 수집기
   ```
 
 가장 유명한 건 `ELK`지만, `Loki` 가 훨씬 가볍다고 해서 비교해봤다.
 
-| 구분 | ELK | Loki |
-| :--- | :--- | :--- |
-| **인덱싱** | 본문 전체 (겁나 무거움) | **라벨(메타데이터)만** |
-| **철학** | "다 찾아줄게" | "필요한 것만 빠르게" |
-| **리소스** | 무거움 | **가벼움** |
-| **검색 방식** | 전문 검색 | 라벨로 필터링 → 본문 grep |
+| 구분        | ELK          | Loki              |
+| :-------- | :----------- | :---------------- |
+| **인덱싱**   | 본문 전체 ( 무거움) | **라벨(메타데이터)만**    |
+| **철학**    | "다 찾아줄게"     | "필요한 것만 빠르게"      |
+| **리소스**   | 무거움          | **가벼움**           |
+| **검색 방식** | 전문 검색        | 라벨로 필터링 → 본문 grep |
 
   **Loki LogQL의 핵심: 1차는 라벨로, 2차는 본문으로!**
   ```
@@ -64,21 +63,19 @@ tags:
      라벨 필터 (인덱스 타서 빠름)                  본문 grep (속도 빠름)
   ```
 
-| 메타데이터 | 라벨 적합? | 이유 |
-| :--- | :--- | :--- |
-| `service=order` | ✅ | 종류가 적음 |
-| `level=ERROR` | ✅ | 고정된 값 |
-| `trace_id=abc` | ❌ | **값 종류가 너무 많음 (Cardinality 폭발)** |
+| 메타데이터           | 라벨 적합? | 이유                               |     |
+| :-------------- | :----- | :------------------------------- | --- |
+| `service=order` | ✅      | 종류가 적음                           |     |
+| `level=ERROR`   | ✅      | 고정된 값                            |     |
+| `trace_id=abc`  | ❌      | **값 종류가 너무 많음 (Cardinality 폭발)** |     |
 
-  > **중요:** `trace_id` 같은 고유값은 라벨로 만들면 Loki 서버 터진다. 본문에 두고 검색으로 찾는 게 맞다.
+  > **중요:** `trace_id` 같은 고유값은 라벨로 만들면 Loki 서버가 OUT_OF_MEMORY 에 직면하게 됨
 
 ### Step 4. 표준화 — ECS와 OpenTelemetry
-  **ECS (Elastic Common Schema):** 로그 필드 이름을 내 맘대로 정하지 말고 표준을 따르자. 벤더가 바뀌어도 도구가 호환된다.
+  **[ECS (Elastic Common Schema)](https://www.elastic.co/kr/elasticsearch/common-schema)**
 
   **OpenTelemetry (OTel):** 
-  옛날엔 Zipkin, Jaeger 등등 파편화되어 있었는데 이제 `OpenTelemetry` 로 대통합됐다. CNCF의 사실상 업계 표준이다.
-
----
+  옛날엔 Zipkin, Jaeger 등등 파편화되어 있었는데 이제 `OpenTelemetry` 로 통일되었음. CNCF의 사실상 업계 표준이다.
 
 ### Step 5. 우리가 만든 최종 아키텍처 (현대적 로깅)
 
@@ -93,7 +90,7 @@ graph TD
 
 ---
 
-### Step 6. 핵심 설정들 (복붙용)
+### Step 6. 설정
 
 #### `build.gradle.kts`
 ```kotlin
@@ -115,7 +112,8 @@ dependencies {
 ```
 
 #### 2. `logback-spring.xml`
-콘솔에는 사람이 보기 좋게 찍고, 파일에는 Alloy가 먹기 좋게 JSON(ECS)로.
+- 콘솔 -> 개발자가 직관적으로 보기 편하도록
+- 파일 -> 기계 친화적으로
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>  
 <configuration>  
