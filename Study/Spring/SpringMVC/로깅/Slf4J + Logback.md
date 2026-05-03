@@ -1,6 +1,8 @@
 
 [[Logging, 좋은 로깅이란 무엇인가]]에서 만든 기능들을 직접 구현하는 대신, 검증된 라이브러리를 사용하자.
 
+[검프의 SLF4J](https://livenow14.tistory.com/63)
+[검프의 Logback](https://livenow14.tistory.com/63)
 ### 의존성 추가 (Gradle)
 ```gradle
 dependencies {
