@@ -1,3 +1,157 @@
 @use "./base.scss";
 
-// put your custom CSS here!
+// Pretendard는 Head.tsx에서 link 태그로 로드 (CSS @import 제약 회피)
+// Quartz가 --bodyFont/--headerFont를 후순위로 덮어쓰므로
+// font-family를 body/heading에 직접 지정해 캐스케이드 우선권을 잡는다.
+
+$appleFontStack: "Pretendard Variable", "Pretendard", "Inter", -apple-system,
+  BlinkMacSystemFont, system-ui, sans-serif;
+$appleMonoStack: "JetBrains Mono", "SF Mono", "IBM Plex Mono", "Menlo", monospace;
+
+// Apple typography baseline — body 17px, tight tracking, 1.47 leading
+body {
+  font-family: $appleFontStack;
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
+  font-feature-settings: "ss03", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--dark);
+}
+
+p,
+li,
+td,
+th {
+  letter-spacing: -0.01em;
+}
+
+// Display headlines — "Apple tight" tracking, weight 600
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $appleFontStack;
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+  color: var(--dark);
+}
+
+h1 {
+  font-size: 2.6rem;
+  letter-spacing: -0.028em;
+  line-height: 1.07;
+}
+h2 {
+  font-size: 2rem;
+  letter-spacing: -0.024em;
+}
+h3 {
+  font-size: 1.5rem;
+}
+h4 {
+  font-size: 1.2rem;
+}
+
+// Strong inline emphasis at weight 600 (not 700)
+strong,
+b {
+  font-weight: 600;
+}
+
+// Action Blue links — primary interactive signal
+a {
+  font-weight: 400;
+  color: var(--secondary);
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    color: var(--secondary);
+    opacity: 0.7;
+  }
+}
+
+// Code — pure mono, no border noise
+code {
+  font-family: $appleMonoStack;
+  font-size: 0.9em;
+  letter-spacing: 0;
+  font-feature-settings: "calt", "liga";
+}
+
+pre {
+  font-family: $appleMonoStack;
+  border-radius: 8px;
+  border: 1px solid var(--lightgray);
+  background-color: color-mix(in srgb, var(--light) 92%, var(--darkgray) 8%);
+}
+
+// Hairline borders — Apple uses 1px subtle hairlines, never heavy borders
+hr {
+  border: none;
+  border-top: 1px solid var(--lightgray);
+  margin: 3rem 0;
+}
+
+// Blockquote — quiet ink rule, no decorative chrome
+blockquote {
+  border-left: 3px solid var(--lightgray);
+  padding-left: 1rem;
+  color: var(--gray);
+  font-style: normal;
+}
+
+// Tables — hairline cells, no heavy borders
+table {
+  border-collapse: collapse;
+  th,
+  td {
+    border-bottom: 1px solid var(--lightgray);
+    padding: 0.6rem 0.75rem;
+  }
+  th {
+    font-weight: 600;
+    border-bottom: 1.5px solid var(--dark);
+  }
+}
+
+// Buttons / interactive chips — pill grammar (Apple signature)
+button,
+.darkmode button,
+.readermode button {
+  border-radius: 9999px;
+  transition: transform 0.15s ease;
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Article max-width tighter for editorial reading rhythm
+article {
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
+}
+
+// Nav / explorer items — quieter weight
+.explorer button,
+.toc-content {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+// Page title — apply title-display tightening
+.page-title {
+  font-weight: 700;
+  letter-spacing: -0.024em;
+}
+
+// Selection — Action Blue tinted
+::selection {
+  background: color-mix(in srgb, var(--secondary) 25%, transparent);
+  color: var(--dark);
+}
