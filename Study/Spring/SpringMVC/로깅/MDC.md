@@ -261,6 +261,13 @@ public CompletableFuture<Result> doAsync() {
 ```
 
 
+## 친절한 Spring
+`Spring` 에서는 이를 이미 구현해놓았습니다. -> **`io.micrometer:context-propagation`** 
+그래서 다음과 같이 `AsyncConfig`에 한 줄만 추가하면 됩니다.
+
+```java
+ executor.setTaskDecorator(new ContextPropagatingTaskDecorator());
+```
 
 ## MDC의 한계
 다음과 같은 상황을 생각해봅시다.
@@ -271,4 +278,4 @@ public CompletableFuture<Result> doAsync() {
 	- 로그가 평문 텍스트로만 있으면 traceId 단위 집계·필터링이 어렵습니다.
 
 이 시점부터는 **로그를 한 곳에 모으고, 정형화하고, 색인하는 도구**가 필요합니다. 
-[[LOKI-RAW]]
+[[LOKI 1탄]]
