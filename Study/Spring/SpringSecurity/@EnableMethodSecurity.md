@@ -1,119 +1,94 @@
-[SpringSecurity - MethodSecurity](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html)
+# @EnableMethodSecurity
 
-*메서드 단위 보안을 설정하기 위해 스프링 시큐리티 기능을 활성화하는 애노테이션*
+> [Spring Security 공식 문서 - Method Security](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html)
 
-### 언제 필요할까?
-공식 문서를 참고하면 메서드 인가 지원은 다음과 같은 경우에 유용해요.
-- 세분화된 인가 로직이 필요할 때
-- 서비스 레이어에서 보안을 강제하고 싶을 때
-- 스타일 측면에서 `HttpSecurity` 기반 설정보다 애노테이션 기반 설정을 선호할 때
+`@EnableMethodSecurity`는 스프링 시큐리티에서 **메서드 단위의 인가(Authorization)** 기능을 활성화할 때 사용하는 애노테이션이에요. 기존의 `@EnableGlobalMethodSecurity`를 대체하며, 더 유연한 보안 설정을 지원해요.
 
-## Case 1. 세분화된 인가 로직
-- 일반적인 `HttpSecurity` 기반 설정
+---
+
+## 1. 언제 필요할까?
+
+메서드 보안은 다음과 같은 상황에서 주로 활용돼요.
+
+1.  **세분화된 인가 로직**: URL 패턴만으로는 판단하기 어려운 복잡한 비즈니스 규칙이 있을 때 유용해요.
+2.  **서비스 레이어 보안**: 웹 계층을 넘어 서비스 계층에서도 보안을 강제하여 데이터 무결성을 높이고 싶을 때 사용해요.
+3.  **애노테이션 기반 설정**: 보안 정책을 비즈니스 로직 바로 옆에 두어 코드의 가독성을 높이고 싶을 때 선택해요.
+
+---
+
+## 2. 주요 활용 사례
+
+### Case 1. 복잡하고 세분화된 인가 로직
+일반적인 `HttpSecurity` 설정은 URL 패턴을 기반으로 해요.
 ```kotlin
 http.authorizeHttpRequests {
     it.requestMatchers("/admin/**").hasRole("ADMIN")
 }
 ```
-- `/admin/**` 패턴과 일치하는 경우 `ADMIN` 권한이 있는지 확인해요.
-
-하지만 게시물 수정 기능을 예로 들어볼게요. 인가 조건이 "`ADMIN`이거나 게시글 작성자 본인만 수정 가능"이라면, `URL`만으로는 판단하기 어렵습니다.
-
-이럴 때 반환값을 기반으로 인가를 설정할 수도 있어요.
-예를 들어, 응답값에 민감 정보가 포함된 객체가 있다고 가정해 볼게요.
+하지만 **"게시글 수정은 ADMIN이거나 작성자 본인만 가능하다"**와 같은 조건은 URL만으로 처리하기 어렵습니다. 이때 `@PostAuthorize` 등을 활용하면 객체 상태에 따라 인가를 결정할 수 있어요.
 
 ```kotlin
-fun getUser(userId: Long): User
+@PostAuthorize("returnObject.ownerId == authentication.principal.id or hasRole('ADMIN')")
+fun getSensitiveData(id: Long): Data { ... }
 ```
 
+### Case 2. 서비스 레이어에서의 보안 강제
+컨트롤러에서만 보안을 체크하면, 서비스 메서드가 다른 경로(배치, 메시지 리스너 등)에서 호출될 때 보안 사각지대가 생길 수 있어요.
 ```kotlin
-@PostAuthorize(
-    "returnObject.id == authentication.principal.id"
-)
-fun getUser(userId: Long): User
-```
-
-## Case 2. 서비스 레이어에서 보안 강제
-삭제 컨트롤러가 있고, 해당 컨트롤러 계층에서만 보안을 적용했다고 해볼게요.
-```kotlin
-@RestController
-class PostController(
-    private val postService: PostService
-) {
-
+@Service
+class PostService {
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long) {
-        postService.delete(id)
-    }
+    fun deletePost(id: Long) { ... }
 }
 ```
+서비스 레이어에 직접 보안을 설정하면 어떤 경로로 호출되더라도 인가된 사용자만 접근하도록 제한할 수 있어요.
 
-만약 `postService.delete(id)`가 다른 곳에서 호출된다면, 권한이 없는 사용자가 데이터를 삭제할 수도 있게 돼요.
-특히 배치 서비스나 비동기 기능 등에서 의도치 않은 사이드 이펙트를 발생시킬 가능성이 높습니다.
+### Case 3. 가독성과 유지보수성
+`HttpSecurity`는 정책을 한눈에 보기 좋지만, 프로젝트가 커지면 설정 코드가 길어지는 단점이 있어요. 애노테이션 방식은 메서드 정의와 보안 규칙이 함께 있어 로직을 이해하기 수월해요.
 
-## Case 3. 애노테이션 기반 선호
-이건 스타일 차이에 가까워요.
+---
 
-먼저 `HttpSecurity`에서 설정하는 방식입니다.
+## 3. 적용 방법
 
-```kotlin
-http.authorizeHttpRequests {
-    it.requestMatchers(HttpMethod.POST, "/themes")
-        .hasRole("ADMIN")
-}
-```
-
-권한 규칙이 한곳에 집중되어 있어 관리가 쉽다는 장점이 있어요.
-하지만 엔드포인트가 많아지면 코드가 매우 길어질 수 있습니다.
-
-다음은 애노테이션 방식입니다.
-```kotlin
-@PreAuthorize("hasRole('ADMIN')")
-fun createTheme() {}
-```
-이 방식은 권한 규칙이 메서드와 함께 있어서 코드를 이해하기 쉽다는 장점이 있어요.
-반면, 권한 정책이 이곳저곳에 분산된다는 단점도 있습니다.
-
-
-# 적용 방법
-적용 방법은 간단해요.
-```plainText
-As already mentioned, you begin by adding @EnableMethodSecurity to a @Configuration class or <sec:method-security/> in a Spring XML configuration file.
-```
-공식 문서에 언급된 것처럼 `@Configuration` 클래스에 `@EnableMethodSecurity`를 추가해주면 돼요.
+설정 클래스(`@Configuration`)에 애노테이션을 추가해서 활성화해요.
 
 ```kotlin
 @Configuration  
 @EnableWebSecurity  
 @EnableMethodSecurity(  
-    securedEnabled = true,  
-    jsr250Enabled = true  
+    securedEnabled = true, // @Secured 활성화
+    jsr250Enabled = true   // JSR-250 (@RolesAllowed 등) 활성화
 )  
-class SecurityConfig() { ... }
+class SecurityConfig { ... }
 ```
 
-이렇게 설정하면 메서드 보안 애노테이션이 적용된 객체는 `Spring AOP` 기술을 기반으로 프록시 객체가 생성되어 대체돼요.
-프록시 방식의 특성상 클래스 내부에서 메서드를 호출할 때는 프록시 객체를 거치지 않고 실제 객체를 직접 호출하게 되므로, 이 점을 반드시 유의해야 합니다.
+### ⚠️ 주의사항: Spring AOP와 Proxy
+메서드 보안은 **Spring AOP(프록시 방식)**를 기반으로 동작해요. 
+> **중요**: 프록시 방식의 특성상, 같은 클래스 내부에서 다른 메서드를 호출할 때는 보안 체크가 적용되지 않아요. 반드시 외부에서 호출되는 진입점에 애노테이션을 사용해야 합니다.
 
-## 추가 내용
-*`securedEnabled`와 `jsr250Enabled` 옵션*
-`@EnableMethodSecurity`는 기본적으로 `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, `@PostFilter`를 활성화해요. 하지만 상황에 따라 다른 애노테이션이 필요할 때 아래 옵션들을 사용합니다.
+---
 
-- **`securedEnabled = true`**
-	- 스프링 시큐리티의 전통적인 애노테이션인 `@Secured`를 활성화해요.
-	```kotlin
-	@Secured("ROLE_ADMIN")
-	fun deleteUser() { ... }
-	```
-	- 매우 직관적이고 사용하기 쉽지만, `SpEL`을 지원하지 않기 때문에 복잡한 조건(예: 본인 확인 로직 등)을 작성하기에는 한계가 있어요.
+## 4. 설정 옵션 상세
 
-- **`jsr250Enabled = true`**
-	- 자바 표준 보안 애노테이션인 **JSR-250** 애노테이션(`@RolesAllowed`, `@PermitAll`, `@DenyAll`)을 활성화해요.
-	```kotlin
-	@RolesAllowed("USER")
-	fun getDashboard() { ... }
-	```
-	- 스프링 시큐리티에 종속되지 않는 표준 기술을 사용하고 싶을 때 유용해요. 다만 `@Secured`와 마찬가지로 `SpEL`을 사용할 수 없다는 점을 유의해야 해요.
+기본적으로 `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, `@PostFilter`는 바로 사용할 수 있어요. 추가로 다음 옵션들을 통해 다른 애노테이션도 지원해요.
 
-보통은 `SpEL`의 강력한 기능을 활용할 수 있는 `@PreAuthorize` 방식을 주로 사용하지만, 기존 레거시 코드와의 호환성이나 표준 준수가 필요한 상황에서 이 옵션들을 활용하게 돼요.
+### securedEnabled = true
+스프링 시큐리티의 전통적인 애노테이션인 **`@Secured`**를 활성화해요.
+```kotlin
+@Secured("ROLE_ADMIN")
+fun deleteUser() { ... }
+```
+- **특징**: 설정이 단순하고 직관적이지만, SpEL(Spring Expression Language)을 지원하지 않아 복잡한 로직을 구현하기에는 한계가 있어요.
+
+### jsr250Enabled = true
+자바 표준 보안 애노테이션인 **JSR-250**(`@RolesAllowed`, `@PermitAll` 등)을 활성화해요.
+```kotlin
+@RolesAllowed("USER")
+fun getDashboard() { ... }
+```
+- **특징**: 프레임워크에 종속되지 않는 표준 기술을 사용할 수 있어요. 다만 `@Secured`와 마찬가지로 SpEL은 사용할 수 없습니다.
+
+---
+
+## 요약
+보통은 SpEL을 지원하여 가장 유연한 **`@PreAuthorize`**를 주로 사용해요. 하지만 기존 코드와의 호환성이나 표준 준수가 필요한 상황이라면 `securedEnabled`나 `jsr250Enabled` 옵션을 활용하면 돼요.
