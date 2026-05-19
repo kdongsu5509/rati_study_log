@@ -20,14 +20,14 @@
 ## 특징
 #### 1. MVC 관련 자동 설정만 활성화
 
-#### 📌 스캔되는 어노테이션
+#### 스캔되는 어노테이션
 
 - `@Controller`
 - `@ControllerAdvice`
 - `@JacksonComponent`
 - `@JsonComponent` (Jackson 2, deprecated)
 
-#### 📌 자동 포함되는 인터페이스 구현체
+#### 자동 포함되는 인터페이스 구현체
 
 - `Converter`
 - `DelegatingFilterProxyRegistrationBean`
