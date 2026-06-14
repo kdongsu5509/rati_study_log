@@ -1,0 +1,151 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1781422510821,
+  "projectRoot": "C:\\ratiObsidian",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": ">=22",
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "preact",
+        "version": "10.28.2",
+        "category": "frontend"
+      },
+      {
+        "name": "esbuild",
+        "version": "0.27.2",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": "Node.js 22"
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": "npm test",
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {
+      "quartz": "./quartz/bootstrap-cli.mjs",
+      "docs": "npx quartz build --serve -d docs",
+      "check": "tsc --noEmit && npx prettier . --check",
+      "format": "npx prettier . --write",
+      "test": "tsx --test",
+      "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "999. attachment": {
+      "path": "999. attachment",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1781422510763,
+      "keyFiles": [
+        "getIt-Scope.png",
+        "동기 비동기 차이.png",
+        "멀티 쓰레딩.png",
+        "코틀린 예외 구조.png"
+      ]
+    },
+    "copilot": {
+      "path": "copilot",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1781422510764,
+      "keyFiles": []
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 12,
+      "lastAccessed": 1781422510779,
+      "keyFiles": [
+        "404.html",
+        "favicon.ico",
+        "index-og-image.webp",
+        "index.css",
+        "index.html"
+      ]
+    },
+    "quartz": {
+      "path": "quartz",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1781422510780,
+      "keyFiles": [
+        "bootstrap-cli.mjs",
+        "bootstrap-worker.mjs",
+        "build.ts",
+        "cfg.ts",
+        "worker.ts"
+      ]
+    },
+    "Study": {
+      "path": "Study",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1781422510781,
+      "keyFiles": []
+    },
+    "quartz\\components": {
+      "path": "quartz\\components",
+      "purpose": "UI components",
+      "fileCount": 29,
+      "lastAccessed": 1781422510783,
+      "keyFiles": [
+        "ArticleTitle.tsx",
+        "Backlinks.tsx",
+        "Body.tsx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "Study\\Spring\\Spring-Modulith\\Fundamentals.md",
+      "accessCount": 3,
+      "lastAccessed": 1781422991097,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring-Modulith\\Spring-Modulith.md",
+      "accessCount": 1,
+      "lastAccessed": 1781422615398,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
