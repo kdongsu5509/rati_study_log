@@ -39,7 +39,7 @@ ApplicationModules.of(Application.class)
 ```
 
 ## Customizing the Verification
-`ApplicationModules.verify(…)`와 `.detectViolations(…)`는 기본적으로 모두 클래스패스 설정에 따라 자동으로 검증을 수행합니다.
+`ApplicationModules.verify(…)`와 `.detectViolations(…)`는 기본적으로 모두 클래스패스 설정에 따라 자동으로 검증을 수행해요.
 
 `VerificationOptions`를 이용하면, 검증을 커스텀하거나, 비활성화하거나, 또는 추가적인 검증을 등록할 수 있어요.
 
