@@ -1,0 +1,7 @@
+{
+  "tool_name": "mcp__claude_ai_Notion__notion-query-data-sources",
+  "tool_input_preview": "{\"data\":{\"mode\":\"view\",\"view_url\":\"https://app.notion.com/p/2442776ec18980b0a783c7aeec0fd155?v=2442776ec18980c7bb51000cc17b3cee\",\"page_size\":100}}",
+  "error": "{\"name\":\"APIResponseError\",\"code\":\"validation_error\",\"status\":400,\"headers\":{},\"body\":\"{\\\"object\\\":\\\"error\\\",\\\"status\\\":400,\\\"code\\\":\\\"validation_error\\\",\\\"message\\\":\\\"This tool requires a Business plan or higher with Notion AI. Upgrade your plan to query data sources: https://app.notion.com/checkout?source=mcp_tool_upsell&tool=query_data_sources&product=business\\\",\\\"request_id\\\":\\\"9dc7ad6a-88de-4bcb-b4e1-b509ece31ba9\\\"}\",\"request_id\":\"9dc7ad6a-88de-4bcb-b4e1-b509ece31ba9\"}",
+  "timestamp": "2026-07-11T11:43:34.592Z",
+  "retry_count": 2
+}

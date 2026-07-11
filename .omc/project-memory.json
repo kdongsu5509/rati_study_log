@@ -128,9 +128,51 @@
   },
   "hotPaths": [
     {
+      "path": "Study\\Spring\\Spring 이벤트\\@EventListener.md",
+      "accessCount": 8,
+      "lastAccessed": 1783769385339,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트\\ApplicationEvent.md",
+      "accessCount": 7,
+      "lastAccessed": 1783769174413,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트\\Spring 이벤트.md",
+      "accessCount": 6,
+      "lastAccessed": 1783769208398,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트\\@TransactionalEventListener.md",
+      "accessCount": 4,
+      "lastAccessed": 1783769406983,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트\\ApplicationEvents 테스트.md",
+      "accessCount": 4,
+      "lastAccessed": 1783769448746,
+      "type": "file"
+    },
+    {
       "path": "Study\\Spring\\Spring-Modulith\\Fundamentals.md",
       "accessCount": 3,
       "lastAccessed": 1781422991097,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트\\@DomainEvents.md",
+      "accessCount": 3,
+      "lastAccessed": 1783769428578,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트\\제네릭 이벤트와 타입 소거.md",
+      "accessCount": 2,
+      "lastAccessed": 1783769012744,
       "type": "file"
     },
     {
@@ -156,6 +198,12 @@
       "accessCount": 1,
       "lastAccessed": 1783768439765,
       "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring 이벤트",
+      "accessCount": 1,
+      "lastAccessed": 1783769213229,
+      "type": "directory"
     }
   ],
   "userDirectives": []

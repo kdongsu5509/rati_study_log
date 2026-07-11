@@ -5,7 +5,6 @@ version: 2.1.0
 prev: "[[4. Customizing the Application Modules Arrangement]]"
 next:
 ---
-
 애플리케이션 모듈 간의 결합도를 최대한 낮게 유지하기 위해, 모듈 간 주된 상호작용 수단은 이벤트 발행(publication) 및 소비(consumption)가 되어야 합니다. 이를 통해 이벤트를 발생시키는 모듈이 이벤트에 관심이 있을 수 있는 모든 대상에 대해 알 필요가 없게 되며, 이는 애플리케이션 모듈 통합 테스트를 가능하게 하는 핵심 요소입니다([Integration Testing Application Modules](https://docs.spring.io/spring-modulith/reference/testing.html) 참고).
 
 - 일반적인 컴포넌트 Logic
@@ -59,7 +58,7 @@ public class OrderManagement {
 }
 ```
 
-다른 애플리케이션 모듈의 Spring 빈에 직접 의존하는 대신, 주 애그리거트(primary aggregate)의 상태 전환을 완료한 후 Spring의 `ApplicationEventPublisher`를 사용하여 도메인 이벤트를 발행하는 방식에 주목하십시오. 보다 애그리거트 중심적인 이벤트 발행 방식에 대한 자세한 내용은 [Spring Data의 애플리케이션 이벤트 발행 메커니즘](https://docs.spring.io/spring-data/commons/reference/repositories/core-domain-events.html)을 참조하십시오.
+다른 애플리케이션 모듈의 Spring 빈에 직접 의존하는 대신, 주 애그리거트(primary aggregate)의 상태 전환을 완료한 후 Spring의 `ApplicationEventPublisher`를 사용하여 도메인 이벤트를 발행하는 방식에 주목하십시오. 보다 애그리거트 중심적인 이벤트 발행 방식에 대한 자세한 내용은[[Spring 이벤트]]을 참조하십시오.
 
 이벤트 발행은 기본적으로 동기식으로 처리되므로, 전체 구조의 트랜잭션 의미(semantics)는 이전 예제와 동일하게 유지됩니다. 이는 장단점을 모두 가집니다. 
 장점은 매우 단순한 일관성 모델(주문 상태 변경과 재고 업데이트가 모두 성공하거나 모두 실패함)을 보장한다는 것입니다. 
@@ -79,12 +78,7 @@ class InventoryManagement {
 ```
 
 이 방식은 결과적으로 원본 트랜잭션을 리스너의 실행과 효과적으로 분리(decouple)합니다. 이를 통해 원본 비즈니스 트랜잭션의 경계가 확장되는 것을 방지할 수 있지만, 동시에 위험도 초래합니다. 각 리스너가 자체적인 안전망(safety net)을 구현하지 않는 한, 어떤 이유로든 리스너가 실패할 경우 발행된 **이벤트가 유실**되기 때문입니다. 더 심각한 문제는 시스템이 해당 메서드(리스너)를 호출하기도 전에 장애가 발생할 수 있기 때문에, 리스너 내부의 안전망만으로는 완벽한 해결책이 될 수 없다는 점입니다.
-
----
----
----
-
-## [](https://docs.spring.io/spring-modulith/reference/events.html#aml)Application Module Listener
+## Application Module Listener
 
 To run a transactional event listener in a transaction itself, it would need to be annotated with `@Transactional` in turn.
 
