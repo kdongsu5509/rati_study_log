@@ -1,11 +1,9 @@
 ---
-version: 2.1.0
-tags:
-  - spring-modulith
-updatedAt: 2026-07-02
+library: Spring Modulith
+library_version: 2.1.0
 url: https://docs.spring.io/spring-modulith/reference/verification.html
 prev: "[[4. Customizing the Application Modules Arrangement]]"
-next: "[[C. Working with Application Events]]"
+next: "[[Study/Spring/Spring-Modulith/C. Working with Application Events/C. Working with Application Events]]"
 ---
 [[1. 애플리케이션 모듈이란]]에서 이야기한 것처럼, `ApplicationModules`의 `verify()` 메서드를 이용해 애플리케이션 모듈 구조의 제약 조건을 검증할 수 있어요.
 

@@ -1,22 +1,14 @@
 ---
+library: Spring Modulith
+library_version: 2.1.0
 version: 2.1.0
-tags:
-  - spring-modulith
-updatedAt: 2026-06-15
 prev: "[[4. Customizing the Application Modules Arrangement]]"
 next:
 ---
-# Working with Application Events
 
-To keep application modules as decoupled as possible from each other, their primary means of interaction should be event publication and consumption. This avoids the originating module to know about all potentially interested parties, which is a key aspect to enable application module integration testing (see [Integration Testing Application Modules](https://docs.spring.io/spring-modulith/reference/testing.html)).
+애플리케이션 모듈 간의 결합도를 최대한 낮게 유지하기 위해, 모듈 간 주된 상호작용 수단은 이벤트 발행(publication) 및 소비(consumption)가 되어야 합니다. 이를 통해 이벤트를 발생시키는 모듈이 이벤트에 관심이 있을 수 있는 모든 대상에 대해 알 필요가 없게 되며, 이는 애플리케이션 모듈 통합 테스트를 가능하게 하는 핵심 요소입니다([Integration Testing Application Modules](https://docs.spring.io/spring-modulith/reference/testing.html) 참고).
 
-Often we will find application components defined like this:
-
-- Java
-    
-- Kotlin
-    
-
+- 일반적인 컴포넌트 Logic
 ```java
 @Service
 @RequiredArgsConstructor
@@ -35,17 +27,20 @@ public class OrderManagement {
 }
 ```
 
-The `complete(…)` method creates functional gravity in the sense that it attracts related functionality and thus interaction with Spring beans defined in other application modules. This especially makes the component harder to test as we need to have instances available of those depended on beans just to create an instance of `OrderManagement` (see [Dealing with Efferent Dependencies](https://docs.spring.io/spring-modulith/reference/testing.html#efferent-dependencies)). It also means that we will have to touch the class whenever we would like to integrate further functionality with the business event order completion.
+`complete()` 메서드는 관련된 기능을 필요로 할 수 있고, 이 과정에서 다른 애플리케이션 모듈에 정의된 `Spring Bean` 들과 상호작용이 필요할 수도 있어요. 이 때문에 `OrderManagement` 클래스에 `complete` 와 관련된 부가 기능과 외부 의존성이 집중될 가능성이 높아져요.
+이러한 점은 다음과 같은 문제점을 야기해요.
+1. 높은 결합도
+	- `주문 완료` 라는 비즈니스 상의 이벤트에 기능 추가 시, `OrderManagement`의 `complete()` 에서 직접 호출
+		- 이로 인해 주입 받아야 하는 `spring bean` 의 개수가 지속적으로 증가 -> `Module` 간의 결합도 증가
+2. 테스트의 어려움
+	- `1` 로 인해 주입받는 모든 외부 의존성들에 대해 `Mock` 등의 추가적인 설정이 필요함.
+3. OCP 위배
+	- `1` 에서 언급한 것처럼 `주문 완료` 의 로직 변경이 아닌 부가 기능 추가를 위해서 `OrderManagement` 의 코드가 변경되어야 함.
 
-We can change the application module interaction as follows:
+이러한 문제들은 다음과 같이 변경하면, 쉽게 해결 가능해요.
 
-Publishing an application event via Spring’s `ApplicationEventPublisher`
 
-- Java
-    
-- Kotlin
-    
-
+#### ***1. Spring의 `ApplicationEventPublisher` 를 이용한 애플리케이션 이벤트 발행***
 ```java
 @Service
 @RequiredArgsConstructor
@@ -64,17 +59,15 @@ public class OrderManagement {
 }
 ```
 
-Note how, instead of depending on the other application module’s Spring bean, we use Spring’s `ApplicationEventPublisher` to publish a domain event once we have completed the state transitions on the primary aggregate. For a more aggregate-driven approach to event publication, see [Spring Data’s application event publication mechanism](https://docs.spring.io/spring-data/commons/reference/repositories/core-domain-events.html) for details. As event publication happens synchronously by default, the transactional semantics of the overall arrangement stay the same as in the example above. Both for the good, as we get to a very simple consistency model (either both the status change of the order _and_ the inventory update succeed or none of them does), but also for the bad as more triggered related functionality will widen the transaction boundary and potentially cause the entire transaction to fail, even if the functionality that is causing the error is not crucial.
+다른 애플리케이션 모듈의 Spring 빈에 직접 의존하는 대신, 주 애그리거트(primary aggregate)의 상태 전환을 완료한 후 Spring의 `ApplicationEventPublisher`를 사용하여 도메인 이벤트를 발행하는 방식에 주목하십시오. 보다 애그리거트 중심적인 이벤트 발행 방식에 대한 자세한 내용은 [Spring Data의 애플리케이션 이벤트 발행 메커니즘](https://docs.spring.io/spring-data/commons/reference/repositories/core-domain-events.html)을 참조하십시오.
 
-A different way of approaching this is by moving the event consumption to asynchronous handling at transaction commit and treat secondary functionality exactly as that:
+이벤트 발행은 기본적으로 동기식으로 처리되므로, 전체 구조의 트랜잭션 의미(semantics)는 이전 예제와 동일하게 유지됩니다. 이는 장단점을 모두 가집니다. 
+장점은 매우 단순한 일관성 모델(주문 상태 변경과 재고 업데이트가 모두 성공하거나 모두 실패함)을 보장한다는 것입니다. 
+단점은 이벤트에 의해 트리거되는 관련 기능이 늘어날수록 트랜잭션 경계가 넓어지며, 오류를 발생시킨 기능이 핵심 로직이 아님에도 불구하고 전체 트랜잭션을 실패하게 만들 수 있다는 점입니다.
 
-An async, transactional event listener
+이를 해결하기 위한 다른 접근 방식은 트랜잭션 커밋 시점에 이벤트 소비를 비동기 처리로 전환하여, 부가 기능(secondary functionality)을 그 목적에 맞게 온전히 부가적인 것으로만 취급하는 것입니다.
 
-- Java
-    
-- Kotlin
-    
-
+#### ***비동기 트랜잭션 이벤트 리스너***
 ```java
 @Component
 class InventoryManagement {
@@ -85,7 +78,11 @@ class InventoryManagement {
 }
 ```
 
-This now effectively decouples the original transaction from the execution of the listener. While this avoids the expansion of the original business transaction, it also creates a risk: if the listener fails for whatever reason, the event publication is lost, unless each listener actually implements its own safety net. Even worse, that doesn’t even fully work, as the system might fail before the method is even invoked.
+이 방식은 결과적으로 원본 트랜잭션을 리스너의 실행과 효과적으로 분리(decouple)합니다. 이를 통해 원본 비즈니스 트랜잭션의 경계가 확장되는 것을 방지할 수 있지만, 동시에 위험도 초래합니다. 각 리스너가 자체적인 안전망(safety net)을 구현하지 않는 한, 어떤 이유로든 리스너가 실패할 경우 발행된 **이벤트가 유실**되기 때문입니다. 더 심각한 문제는 시스템이 해당 메서드(리스너)를 호출하기도 전에 장애가 발생할 수 있기 때문에, 리스너 내부의 안전망만으로는 완벽한 해결책이 될 수 없다는 점입니다.
+
+---
+---
+---
 
 ## [](https://docs.spring.io/spring-modulith/reference/events.html#aml)Application Module Listener
 
