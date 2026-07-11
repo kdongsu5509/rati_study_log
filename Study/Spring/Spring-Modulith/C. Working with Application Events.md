@@ -79,15 +79,9 @@ class InventoryManagement {
 
 이 방식은 결과적으로 원본 트랜잭션을 리스너의 실행과 효과적으로 분리(decouple)합니다. 이를 통해 원본 비즈니스 트랜잭션의 경계가 확장되는 것을 방지할 수 있지만, 동시에 위험도 초래합니다. 각 리스너가 자체적인 안전망(safety net)을 구현하지 않는 한, 어떤 이유로든 리스너가 실패할 경우 발행된 **이벤트가 유실**되기 때문입니다. 더 심각한 문제는 시스템이 해당 메서드(리스너)를 호출하기도 전에 장애가 발생할 수 있기 때문에, 리스너 내부의 안전망만으로는 완벽한 해결책이 될 수 없다는 점입니다.
 ## Application Module Listener
+트랜잭션 이벤트 리스너 자체를 트랜잭션 안에서 실행하려면, 해당 리스너에도 `@Transactional`을 붙여야 한다.
 
-To run a transactional event listener in a transaction itself, it would need to be annotated with `@Transactional` in turn.
-
-An async, transactional event listener running in a transaction itself
-
-- Java
-    
-- Kotlin
-    
+자체 트랜잭션 안에서 실행되는 비동기 트랜잭션 이벤트 리스너.
 
 ```java
 @Component
@@ -100,14 +94,9 @@ class InventoryManagement {
 }
 ```
 
-To ease the declaration of what is supposed to describe the default way of integrating modules via events, Spring Modulith provides `@ApplicationModuleListener` as a shortcut.
+이벤트를 통해 모듈을 통합하는 기본 방식을 더 쉽게 선언할 수 있도록, Spring Modulith는 축약 애노테이션인 `@ApplicationModuleListener`를 제공한다.
 
 An application module listener
-
-- Java
-    
-- Kotlin
-    
 
 ```java
 @Component
@@ -120,7 +109,13 @@ class InventoryManagement {
 
 ## [](https://docs.spring.io/spring-modulith/reference/events.html#publication-registry)The Event Publication Registry
 
-Spring Modulith ships with an event publication registry that hooks into the core event publication mechanism of Spring Framework. On event publication, it finds out about the transactional event listeners that will get the event delivered and writes entries for each of them (dark blue) into an event publication log as part of the original business transaction. By default, all event listeners (meta-)annotated with `@TransactionalEventListener` are considered. If you want to customize this, check out the [`spring.modulith.events.registry-trigger-annotation` property](https://docs.spring.io/spring-modulith/reference/appendix.html#configuration-properties).
+Spring Modulith는 Spring Framework의 핵심 이벤트 발행 메커니즘과 연동되는 이벤트 발행 레지스트리를 제공한다.
+
+이벤트가 발행되면, 해당 이벤트를 전달받을 트랜잭션 이벤트 리스너를 찾아낸다. 그리고 원래 비즈니스 트랜잭션의 일부로 각 리스너에 대한 항목을 이벤트 발행 로그에 기록한다.
+
+기본적으로 `@TransactionalEventListener`가 직접 또는 메타 애노테이션 형태로 붙은 모든 이벤트 리스너가 대상이 된다.
+
+이 동작을 변경하려면 `spring.modulith.events.registry-trigger-annotation` 설정을 확인하면 된다.
 
 ![event publication registry start](https://docs.spring.io/spring-modulith/reference/_images/event-publication-registry-start.png)
 
@@ -131,6 +126,35 @@ Each transactional event listener is wrapped into an aspect that marks that log 
 ![event publication registry end](https://docs.spring.io/spring-modulith/reference/_images/event-publication-registry-end.png)
 
 Figure 2. The transactional event listener arrangement after execution
+
+물론이죠. 원문을 쉽게 풀어쓰면 다음과 같습니다.
+
+## 이벤트 발행 기록부
+
+Spring Modulith는 이벤트가 제대로 처리되었는지를 관리하는 **이벤트 처리 기록부**를 제공합니다.
+
+이벤트가 발행되면 Spring Modulith는 먼저 그 이벤트를 처리하도록 등록된 `@TransactionalEventListener`들을 찾습니다.
+
+그런 다음 각 리스너가 처리해야 할 작업을 이벤트 발행 기록부에 하나씩 저장합니다. 이 기록은 원래 비즈니스 작업과 같은 트랜잭션 안에서 저장됩니다.
+
+예를 들어 주문 완료 이벤트를 재고 리스너와 포인트 리스너가 구독하고 있다면 다음 두 작업이 기록됩니다.
+
+- 재고 리스너가 주문 완료 이벤트를 처리해야 한다.
+- 포인트 리스너가 주문 완료 이벤트를 처리해야 한다.
+
+각 리스너가 실행에 성공하면 Spring Modulith는 해당 작업을 완료된 것으로 표시합니다.
+
+반대로 리스너 실행 중 오류가 발생하면 해당 작업은 완료 처리되지 않습니다. 따라서 나중에 실패한 작업만 찾아서 다시 실행할 수 있습니다.
+
+필요하다면 애플리케이션이 재시작될 때 완료되지 않은 이벤트 작업을 자동으로 다시 실행하도록 설정할 수도 있습니다.
+
+기본적으로 `@TransactionalEventListener`가 붙은 리스너가 이러한 관리 대상이 됩니다. 다른 애노테이션을 기준으로 관리하고 싶다면 `spring.modulith.events.registry-trigger-annotation` 설정을 변경할 수 있습니다.
+
+한마디로 정리하면 다음과 같습니다.
+
+> Spring Modulith의 Event Publication Registry는 어떤 이벤트를 어떤 리스너가 처리해야 하는지 기록하고, 처리 성공 여부를 관리하여 실패한 작업을 나중에 다시 시도할 수 있게 해주는 기능입니다.
+---
+---
 
 ### [](https://docs.spring.io/spring-modulith/reference/events.html#publication-registry.lifecycle)Event Publication Lifecycle (since 2.0)
 
