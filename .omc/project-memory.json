@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1781422510821,
+  "lastScanned": 1783768279093,
   "projectRoot": "C:\\ratiObsidian",
   "techStack": {
     "languages": [
@@ -73,7 +73,7 @@
       "path": "999. attachment",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1781422510763,
+      "lastAccessed": 1783768279016,
       "keyFiles": [
         "getIt-Scope.png",
         "동기 비동기 차이.png",
@@ -81,18 +81,11 @@
         "코틀린 예외 구조.png"
       ]
     },
-    "copilot": {
-      "path": "copilot",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1781422510764,
-      "keyFiles": []
-    },
     "public": {
       "path": "public",
       "purpose": "Public files",
       "fileCount": 12,
-      "lastAccessed": 1781422510779,
+      "lastAccessed": 1783768279017,
       "keyFiles": [
         "404.html",
         "favicon.ico",
@@ -105,7 +98,7 @@
       "path": "quartz",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1781422510780,
+      "lastAccessed": 1783768279018,
       "keyFiles": [
         "bootstrap-cli.mjs",
         "bootstrap-worker.mjs",
@@ -118,14 +111,14 @@
       "path": "Study",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1781422510781,
+      "lastAccessed": 1783768279019,
       "keyFiles": []
     },
     "quartz\\components": {
       "path": "quartz\\components",
       "purpose": "UI components",
       "fileCount": 29,
-      "lastAccessed": 1781422510783,
+      "lastAccessed": 1783768279021,
       "keyFiles": [
         "ArticleTitle.tsx",
         "Backlinks.tsx",
@@ -144,6 +137,24 @@
       "path": "Study\\Spring\\Spring-Modulith\\Spring-Modulith.md",
       "accessCount": 1,
       "lastAccessed": 1781422615398,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Java 비동기 프로그래밍\\@Async.md",
+      "accessCount": 1,
+      "lastAccessed": 1783768439606,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring-Modulith\\C. Working with Application Events.md",
+      "accessCount": 1,
+      "lastAccessed": 1783768439656,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\DB 접근 기술\\@Modifying.md",
+      "accessCount": 1,
+      "lastAccessed": 1783768439765,
       "type": "file"
     }
   ],
