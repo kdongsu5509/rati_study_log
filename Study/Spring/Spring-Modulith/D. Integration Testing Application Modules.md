@@ -5,7 +5,6 @@ version: 2.1.0
 prev: "[[C. Working with Application Events]]"
 next:
 ---
-
 [Spring Modulith Docs - Integration Testing Application Modules](https://docs.spring.io/spring-modulith/reference/testing.html)
 
 Spring Modulith에서는 전체 애플리케이션을 실행하지 않고, 특정 애플리케이션 모듈만 실행해서 통합 테스트할 수 있어요.
