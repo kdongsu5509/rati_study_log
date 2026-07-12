@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1783768279093,
+  "lastScanned": 1783855014595,
   "projectRoot": "C:\\ratiObsidian",
   "techStack": {
     "languages": [
@@ -73,7 +73,7 @@
       "path": "999. attachment",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1783768279016,
+      "lastAccessed": 1783855014524,
       "keyFiles": [
         "getIt-Scope.png",
         "동기 비동기 차이.png",
@@ -85,7 +85,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 12,
-      "lastAccessed": 1783768279017,
+      "lastAccessed": 1783855014524,
       "keyFiles": [
         "404.html",
         "favicon.ico",
@@ -98,7 +98,7 @@
       "path": "quartz",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1783768279018,
+      "lastAccessed": 1783855014524,
       "keyFiles": [
         "bootstrap-cli.mjs",
         "bootstrap-worker.mjs",
@@ -111,14 +111,14 @@
       "path": "Study",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1783768279019,
+      "lastAccessed": 1783855014525,
       "keyFiles": []
     },
     "quartz\\components": {
       "path": "quartz\\components",
       "purpose": "UI components",
       "fileCount": 29,
-      "lastAccessed": 1783768279021,
+      "lastAccessed": 1783855014526,
       "keyFiles": [
         "ArticleTitle.tsx",
         "Backlinks.tsx",
@@ -146,6 +146,12 @@
       "type": "file"
     },
     {
+      "path": "Study\\Spring\\Spring-Modulith\\C. Working with Application Events.md",
+      "accessCount": 5,
+      "lastAccessed": 1783855126197,
+      "type": "file"
+    },
+    {
       "path": "Study\\Spring\\Spring 이벤트\\@TransactionalEventListener.md",
       "accessCount": 4,
       "lastAccessed": 1783769406983,
@@ -158,9 +164,9 @@
       "type": "file"
     },
     {
-      "path": "Study\\Spring\\Spring-Modulith\\C. Working with Application Events.md",
+      "path": "Study\\Spring\\Spring-Modulith\\D. Integration Testing Application Modules.md",
       "accessCount": 4,
-      "lastAccessed": 1783772240637,
+      "lastAccessed": 1783855361877,
       "type": "file"
     },
     {
@@ -179,12 +185,6 @@
       "path": "Study\\Spring\\Spring 이벤트\\제네릭 이벤트와 타입 소거.md",
       "accessCount": 2,
       "lastAccessed": 1783769012744,
-      "type": "file"
-    },
-    {
-      "path": "Study\\Spring\\Spring-Modulith\\D. Integration Testing Application Modules.md",
-      "accessCount": 2,
-      "lastAccessed": 1783772549991,
       "type": "file"
     },
     {
@@ -210,6 +210,12 @@
       "accessCount": 1,
       "lastAccessed": 1783769213229,
       "type": "directory"
+    },
+    {
+      "path": "Study\\Spring\\Spring-Modulith\\E. Working with Passage of Time Events.md",
+      "accessCount": 1,
+      "lastAccessed": 1783855357121,
+      "type": "file"
     }
   ],
   "userDirectives": []

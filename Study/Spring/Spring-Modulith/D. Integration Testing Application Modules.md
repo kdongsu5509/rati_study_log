@@ -3,7 +3,7 @@ library: Spring Modulith
 library_version: 2.1.0
 version: 2.1.0
 prev: "[[C. Working with Application Events]]"
-next:
+next: "[[E. Working with Passage of Time Events]]"
 ---
 [Spring Modulith Docs - Integration Testing Application Modules](https://docs.spring.io/spring-modulith/reference/testing.html)
 
