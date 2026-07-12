@@ -3,7 +3,7 @@ library: Spring Modulith
 library_version: 2.1.0
 version: 2.1.0
 prev: "[[D. Integration Testing Application Modules]]"
-next:
+next: "[[F. Producing Documentation for Application Modules]]"
 ---
 [Spring Modulith Docs - Working with Passage of Time Events](https://docs.spring.io/spring-modulith/reference/moments.html)
 
@@ -13,7 +13,7 @@ Mathias Verraes의 "Passage of Time Events" 패턴을 Spring Modulith가 `spring
 
 ---
 
-# 1. 문제 — 스케줄러가 도메인 지식에 결합돼요
+# 1. 문제 — 스케줄러가 도메인 지식에 결합
 
 많은 시스템에서 "미래의 특정 시점에 실행해야 하는 작업"을 Cron이나 스케줄러로 처리해요. 이 설계에서 스케줄러는 **무엇을, 언제** 실행해야 하는지를 모두 알고 있어요.
 

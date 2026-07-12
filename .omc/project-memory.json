@@ -188,6 +188,18 @@
       "type": "file"
     },
     {
+      "path": "Study\\Spring\\Spring-Modulith\\E. Working with Passage of Time Events.md",
+      "accessCount": 2,
+      "lastAccessed": 1783855688564,
+      "type": "file"
+    },
+    {
+      "path": "Study\\Spring\\Spring-Modulith\\F. Producing Documentation for Application Modules.md",
+      "accessCount": 2,
+      "lastAccessed": 1783856003921,
+      "type": "file"
+    },
+    {
       "path": "Study\\Spring\\Spring-Modulith\\Spring-Modulith.md",
       "accessCount": 1,
       "lastAccessed": 1781422615398,
@@ -212,9 +224,9 @@
       "type": "directory"
     },
     {
-      "path": "Study\\Spring\\Spring-Modulith\\E. Working with Passage of Time Events.md",
+      "path": "Study\\Spring\\Spring-Modulith\\G. Production-ready Features.md",
       "accessCount": 1,
-      "lastAccessed": 1783855357121,
+      "lastAccessed": 1783855999014,
       "type": "file"
     }
   ],
